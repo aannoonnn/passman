@@ -1,0 +1,85 @@
+#!/bin/bash - 
+#===============================================================================
+#
+#          FILE: passman.sh
+# 
+#         USAGE: ./passman.sh [-option]
+# 
+#   DESCRIPTION: A tiny password manager for the command line. Uses openssl rsautl encryption.
+# 
+#       OPTIONS: -a to add a new account and password; -g to get the password for an account
+#  REQUIREMENTS: xclip, openssl
+#          BUGS: ---
+#         NOTES: ---
+#        AUTHOR: Gabriel Silva Miranda
+#       CREATED: 10/10/2019 16:44
+#      REVISION:  ---
+#===============================================================================
+
+set -o nounset                              # Treat unset variables as an error
+
+help(){
+    echo -e "usage: passman [option]\n\nOptions:\n\t-a\tAdd an account and password\n\t-g\tGet the password for an account\n"
+}
+
+genKey(){
+    openssl genrsa -out .key 2048
+}
+
+encryptPass(){
+    local user
+    local pass
+    read -p "Enter an account name: " user
+    read -p "Enter a password: " -s pass
+    echo $pass | openssl rsautl -inkey .key -encrypt  >> ./passwords/$user.bin
+    echo -e "\nDone!"
+}
+
+decryptPass(){
+    local user
+    read -p "Enter the account name: " user
+    findfile=`find ./passwords/$user.bin`
+    if [ $findfile == ./passwords/$user.bin ];
+    then
+        openssl rsautl -inkey .key -decrypt < ./passwords/$user.bin | xclip -selection c
+        echo "The password was sent to your clipboard (Ctrl+V)!"
+    else
+        echo "No match found!"
+    fi
+}
+
+findkey=`find .key 2>/dev/null`
+findpass=`find passwords -maxdepth 0 2>/dev/null`
+
+if (($# > 0)); then
+    case $1 in
+        -a)
+            if [ "$findkey" == ".key" ];
+            then
+                if [ "$findpass" == "passwords" ];
+                then
+                    encryptPass
+                else
+                    mkdir passwords
+                    encryptPass
+                fi
+            else
+                genKey
+                encryptPass
+            fi
+            ;;
+        -g)
+            if [ "$findpass" == "passwords" ];
+            then
+                decryptPass
+            else
+                echo "There are no passwords stored!"
+            fi
+            ;;
+        *)
+            help
+            ;;
+    esac
+else help
+fi
+
