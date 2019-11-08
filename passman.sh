@@ -23,14 +23,16 @@ help(){
 }
 
 genKey(){
-    openssl genrsa -out .key 2048
+    openssl genrsa -out .key -aes256 2048
 }
 
 encryptPass(){
     local user
     local pass
     read -p "Enter an account name: " user
+    touch $user.bin
     read -p "Enter a password: " -s pass
+    echo -e "\n"
     echo $pass | openssl rsautl -inkey .key -encrypt  >> ./passwords/$user.bin
     echo -e "\nDone!"
 }
