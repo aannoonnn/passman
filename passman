@@ -31,7 +31,6 @@ encryptPass(){
     local pass
     read -p "Enter an account name: " user
     read -p "Enter a password: " -s pass
-    touch $user.bin
     echo $pass | openssl rsautl -inkey .key -encrypt  >> ./passwords/$user.bin
     echo -e "\nDone!"
 }
