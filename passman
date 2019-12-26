@@ -39,8 +39,8 @@ encryptPass(){
 decryptPass(){
     local user
     read -p "Enter the account name: " user
-    findfile=`find ./passwords/$user.bin`
-    if [ $findfile == ./passwords/$user.bin ];
+    findfile=`find passwords/$user.bin`
+    if [ "$findfile" == "passwords/$user.bin" ];
     then
         openssl rsautl -inkey .key -decrypt < ./passwords/$user.bin | xclip -selection c
         echo "The password was sent to your clipboard (Ctrl+V)!"
