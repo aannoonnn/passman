@@ -23,7 +23,7 @@ help(){
 }
 
 genKey(){
-    openssl genrsa -out .key 2048
+    openssl genrsa -out ~/.local/bin/.key 2048
 }
 
 encryptPass(){
@@ -31,33 +31,33 @@ encryptPass(){
     local pass
     read -p "Enter an account name: " user
     read -p "Enter a password: " -s pass
-    echo $pass | openssl rsautl -inkey .key -encrypt  >> ./passwords/$user.bin
+    echo $pass | openssl rsautl -inkey $HOME/.local/bin/.key -encrypt  >> ~/.local/share/passwords/$user.bin
     echo -e "\nDone!"
 }
 
 decryptPass(){
     local user
     read -p "Enter the account name: " user
-    findfile=`find passwords/$user.bin`
-    if [ "$findfile" == "passwords/$user.bin" ];
+    findfile=`find ~/.local/share/passwords/$user.bin`
+    if [ "$findfile" == "$HOME/.local/share/passwords/$user.bin" ];
     then
-        openssl rsautl -inkey .key -decrypt < ./passwords/$user.bin | xclip -selection c
+        openssl rsautl -inkey $HOME/.local/bin/.key -decrypt < ~/.local/share/passwords/$user.bin | xclip -selection c
         echo "The password was sent to your clipboard (Ctrl+V)!"
     else
         echo "No match found!"
     fi
 }
 
-findkey=`find .key 2>/dev/null`
-findpass=`find passwords -maxdepth 0 2>/dev/null`
+findkey=`find ~/.local/bin/.key 2>/dev/null`
+findpass=`find ~/.local/share/passwords -maxdepth 0 2>/dev/null`
 
 
 if (($# > 0)); then
     case $1 in
         -a)
-            if [ "$findkey" == ".key" ];
+            if [ "$findkey" == "$HOME/.local/bin/.key" ];
             then
-                if [ "$findpass" == "passwords" ];
+                if [ "$findpass" == "$HOME/.local/share/passwords" ];
                 then
                     encryptPass
                 else
@@ -66,7 +66,7 @@ if (($# > 0)); then
                 fi
             else
                 genKey
-                if [ "$findpass" == "passwords" ];
+                if [ "$findpass" == "$HOME/.local/share/passwords" ];
                 then
                     encryptPass
                 else
@@ -76,7 +76,7 @@ if (($# > 0)); then
             fi
             ;;
         -g)
-            if [ "$findpass" == "passwords" ];
+            if [ "$findpass" == "$HOME/.local/share/passwords" ];
             then
                 decryptPass
             else
