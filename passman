@@ -19,11 +19,22 @@
 set -o nounset                              # Treat unset variables as an error
 
 help(){
-    echo -e "usage: passman [option]\n\nOptions:\n\t-a\tAdd an account and password\n\t-g\tGet the password for an account\n"
+    echo -e "usage: passman [option]\n\nOptions:\n\t-a\tAdd an account and password\n\t-g\tGet the password for an account\n\t-l\tList password files\n"
 }
 
 genKey(){
-    openssl genrsa -out ~/.local/bin/.key 2048
+    echo "No key found! Would you like to generate a key? y/n"
+    local option
+    read option
+    if [option == "y" || option == "Y"];
+    then
+        openssl genrsa -aes256 -out ~/.local/bin/.key 2048
+    elif [option == "n" || option == "N"];
+    then
+        echo "Closing!"
+    else
+        genKey
+    fi
 }
 
 encryptPass(){
@@ -46,6 +57,10 @@ decryptPass(){
     else
         echo "No match found!"
     fi
+}
+
+listPass(){
+    ls ~/.local/share/passwords/
 }
 
 findkey=`find ~/.local/bin/.key 2>/dev/null`
@@ -82,6 +97,9 @@ if (($# > 0)); then
             else
                 echo "There are no passwords stored!"
             fi
+            ;;
+        -l)
+            listPass
             ;;
         *)
             help
