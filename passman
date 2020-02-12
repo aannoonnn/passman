@@ -50,7 +50,7 @@ encryptPass(){
 decryptPass(){
     local user
     read -p "Enter the account name: " user
-    findfile=`find ~/.local/share/passwords/$user.bin`
+    findfile=`find ~/.local/share/passwords/$user.bin 2>/dev/null`
     if [ "$findfile" == "$HOME/.local/share/passwords/$user.bin" ];
     then
         openssl rsautl -inkey $HOME/.local/bin/.key -decrypt < ~/.local/share/passwords/$user.bin | xclip -selection c
