@@ -26,12 +26,13 @@ genKey(){
     echo "No key found! Would you like to generate a key? y/n"
     local option
     read option
-    if [option == "y" || option == "Y"];
+    if [[ "$option" == "y" ]] || [[ "$option" == "Y" ]];
     then
         openssl genrsa -aes256 -out ~/.local/bin/.key 2048
-    elif [option == "n" || option == "N"];
+    elif [[ "$option" == "n" ]] || [[ "$option" == "N" ]];
     then
         echo "Closing!"
+        exit
     else
         genKey
     fi
@@ -76,7 +77,7 @@ if (($# > 0)); then
                 then
                     encryptPass
                 else
-                    mkdir passwords
+                    mkdir ~/.local/share/passwords
                     encryptPass
                 fi
             else
@@ -85,7 +86,7 @@ if (($# > 0)); then
                 then
                     encryptPass
                 else
-                    mkdir passwords
+                    mkdir ~/.local/share/passwords
                     encryptPass
                 fi
             fi
@@ -99,7 +100,13 @@ if (($# > 0)); then
             fi
             ;;
         -l)
-            listPass
+            if [ "$findpass" == "$HOME/.local/share/passwords" ];
+            then
+                listPass
+            else
+                mkdir ~/.local/share/passwords
+                echo "There ano no passwords stored! Password directory created"
+            fi
             ;;
         *)
             help
